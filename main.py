@@ -3,8 +3,6 @@ from sys import exit
 from game import *
 
 
-print("working to this point")
-
 # game information
 FPS = 60
 clock = GS.pygame.time.Clock()
@@ -81,6 +79,11 @@ class Game():
         GS.all_sprites.clear(GS.screen, GS.backgrounds[self.stage])
 
 
+# create game object before mouse object
+# makes it possible to be manipulated by mouse object
+game = Game()
+
+
 class Mouse(GS.pygame.sprite.DirtySprite):
     def __init__(self):
         GS.pygame.sprite.DirtySprite.__init__(self)
@@ -127,9 +130,7 @@ class Mouse(GS.pygame.sprite.DirtySprite):
         self.rect.y = self.pos_y - 30
 
 
-
 mouse = Mouse()
-game = Game()
 
 
 while game_running == 1:
