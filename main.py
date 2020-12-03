@@ -106,9 +106,10 @@ class Mouse(GS.pygame.sprite.DirtySprite):
 
         # get mouse (x,y) and set it as the rect startposition
         self.pos_x, self.pos_y = GS.pygame.mouse.get_pos()
-        # -5 for better positioning to the mouse
-        self.rect.x = self.pos_x - 5
-        self.rect.y = self.pos_y - 5
+        # -5 for better positioning of the image to the mouse
+        self.position_correction = -30
+        self.rect.x = self.pos_x - self.position_correction
+        self.rect.y = self.pos_y - self.position_correction
 
     # set objects behavior
     def update(self):
@@ -130,8 +131,8 @@ class Mouse(GS.pygame.sprite.DirtySprite):
 
     def sprite_repos(self):
         # - 5 for better mouse positioning
-        self.rect.x = self.pos_x - 30
-        self.rect.y = self.pos_y - 30
+        self.rect.x = self.pos_x - self.position_correction
+        self.rect.y = self.pos_y - self.position_correction
 
 
 mouse = Mouse()
