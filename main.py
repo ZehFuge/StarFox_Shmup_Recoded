@@ -1,16 +1,13 @@
 # library import block
-import pygame
 from sys import exit
 from game import *
 
 
-# init block
-pygame.init()
-
+print("working to this point")
 
 # game information
 FPS = 60
-clock = pygame.time.Clock()
+clock = GS.pygame.time.Clock()
 game_running = 1
 
 
@@ -20,8 +17,8 @@ class Game():
         self.state = "menu"
 
         # needed to save the mouse position for get_mouse_pos() and make it visible at the beginning
-        pygame.mouse.set_visible(False)
-        self.mouse_pos = pygame.mouse.get_pos()
+        GS.pygame.mouse.set_visible(False)
+        self.mouse_pos = GS.pygame.mouse.get_pos()
         self.mouse_pressed = 0
 
         # needs to display the right background
@@ -36,26 +33,17 @@ class Game():
     # startmenu of the game
     def menu(self):
         # create buttons
-        play_button = GS.Buttons("play", 500, 500)
+        play_button = GS.Buttons("play", 800, 500)
 
         while 1:
-            # set new layer only once, if needed
-            # if self.stage != self.layer:
-            #     self.change_layers()
-
             # update mouse position
             self.get_mouse_pos()
 
             # check input
             self.event_handler()
 
-            # update all_sprites behavior
-            self.update_all_sprites()
-
-            # update changes
+            # update by behavior, get changes and draw them
             self.update_dirty_rects()
-
-            pygame.display.flip()
 
     # check which loops need to be shown
     def state_handler(self):
@@ -64,43 +52,38 @@ class Game():
 
     # update mouse position
     def get_mouse_pos(self):
-        self.mouse_pos = pygame.mouse.get_pos()
+        self.mouse_pos = GS.pygame.mouse.get_pos()
 
     # checks input while in any kind of menu
     def event_handler(self):
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
+        for event in GS.pygame.event.get():
+            if event.type == GS.pygame.QUIT:
                 self.end_game()
 
-            if event.type == pygame.mouse.get_pressed():
-                self.mouse_pressed = pygame.mouse.get_pressed()
+            if event.type == GS.pygame.mouse.get_pressed():
+                self.mouse_pressed = GS.pygame.mouse.get_pressed()
 
     # if event.type == QUIT
     def end_game(self):
-        pygame.quit()
+        GS.pygame.quit()
         exit()
 
-    # update sprite behaviors
-    def update_all_sprites(self):
-        GS.all_sprites.update()
 
-    # get changed sprites to redraw
+    # update by behavior, get changes and draw them
     def update_dirty_rects(self):
+        GS.all_sprites.update()
         rects = GS.all_sprites.draw(GS.screen)
-        pygame.display.update(rects)
+        GS.pygame.display.update(rects)
+        GS.pygame.display.flip()
 
     # change the background depend on self.stage re-rendering
     def change_background_clear(self):
         GS.all_sprites.clear(GS.screen, GS.backgrounds[self.stage])
 
-    # change layer for menus and actual game
-    def change_layers(self):
-        pass
 
-
-class Mouse(pygame.sprite.DirtySprite):
+class Mouse(GS.pygame.sprite.DirtySprite):
     def __init__(self):
-        pygame.sprite.DirtySprite.__init__(self)
+        GS.pygame.sprite.DirtySprite.__init__(self)
         # safe classname for events and handling
         self.classname = "Mouse"
         # needed for redrawing
@@ -112,13 +95,13 @@ class Mouse(pygame.sprite.DirtySprite):
         GS.all_mouses.add(self)
 
         # load image and get its rect
-        self.image = pygame.transform.rotate(GS.player_images[0], 40) # 90° angle to the left
+        self.image = GS.pygame.transform.rotate(GS.player_images[0], 40) # 90° angle to the left
         self.rect = self.image.get_rect()
 
         # set radius for clearner collision detection with buttons
 
         # get mouse (x,y) and set it as the rect startposition
-        self.pos_x, self.pos_y = pygame.mouse.get_pos()
+        self.pos_x, self.pos_y = GS.pygame.mouse.get_pos()
         # -5 for better positioning to the mouse
         self.rect.x = self.pos_x - 5
         self.rect.y = self.pos_y - 5
@@ -136,7 +119,7 @@ class Mouse(pygame.sprite.DirtySprite):
 
     def get_position(self):
         # safe new position
-        self.pos_x, self.pos_y = pygame.mouse.get_pos()
+        self.pos_x, self.pos_y = GS.pygame.mouse.get_pos()
 
     def sprite_repos(self):
         # - 5 for better mouse positioning
