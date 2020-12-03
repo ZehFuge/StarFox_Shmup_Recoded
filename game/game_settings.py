@@ -8,9 +8,10 @@ import pygame
 
 
 # library init block
-pygame.mixer.pre_init(44100, -16, 50, 4096)
-pygame.mixer.init()
-pygame.font.init()
+pygame.init
+# pygame.mixer.pre_init(44100, -16, 50, 4096)
+# pygame.mixer.init()
+# pygame.font.init()
 
 
 # window information
@@ -84,7 +85,7 @@ layers["Mouse"] = 2
 # class block
 # creates a
 class Buttons(pygame.sprite.DirtySprite):
-    def __init__(self, type, x, y):
+    def __init__(self, buttontype, x, y):
         # asign sprite to groups
         pygame.sprite.DirtySprite.__init__(self)
         # safe classname for events and handling
@@ -102,8 +103,8 @@ class Buttons(pygame.sprite.DirtySprite):
         self.image_counter = 0
 
         # set idle button image at first and get its rectangle
-        self.type = type
-        self.image = buttons[type + str(self.image_counter)]
+        self.buttontype = buttontype
+        self.image = buttons[self.buttontype + str(self.image_counter)]
         self.rect = self.image.get_rect()
         self.radius = self.rect.width/2
 
@@ -115,4 +116,23 @@ class Buttons(pygame.sprite.DirtySprite):
         self.soundcontroller = 1
 
     def update(self):
-        pass
+        # check collision
+        self.check_collision()
+
+        # change image if needed
+        self.change_image()
+
+    def check_collision(self):
+        hits = pygame.sprite.spritecollide(self, all_mouses, False)
+
+        if hits:
+            if self.image_counter == 0:
+                self.image_counter = 1
+                self.dirty = 1
+        else:
+            if self.image_counter == 1:
+                self.image_counter = 0
+                self.dirty = 1
+
+    def change_image(self):
+        self.image = buttons[self.buttontype + str(self.image_counter)]
