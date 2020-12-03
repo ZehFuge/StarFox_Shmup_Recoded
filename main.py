@@ -97,9 +97,10 @@ class Mouse(GS.pygame.sprite.DirtySprite):
         GS.all_sprites.add(self)
         GS.all_mouses.add(self)
 
-        # load image and get its rect
+        # load image and get its rect and mask
         self.image = GS.pygame.transform.rotate(GS.player_images[0], 40) # 90° angle to the left
         self.rect = self.image.get_rect()
+        self.mask = GS.pygame.mask.from_surface(self.image)
 
         # set radius for clearner collision detection with buttons
 
@@ -111,6 +112,9 @@ class Mouse(GS.pygame.sprite.DirtySprite):
 
     # set objects behavior
     def update(self):
+        # keep mask updated
+        self.mask = GS.pygame.mask.from_surface(self.image)
+
         # get position of the mouse cursor
         self.get_position()
 
