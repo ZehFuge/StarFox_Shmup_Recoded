@@ -20,18 +20,6 @@ HIGHT = 800
 screen = pygame.display.set_mode((WIDTH, HIGHT))
 
 
-# pre defined colors
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
-YELLOW = (255, 255, 0)
-RED = (255, 0, 0)
-GREEN = (0, 255, 0)
-BLUE = (0, 0, 255)
-CONVERT_SCORE = (89, 193, 53)
-CONVERT_WINGS = (172, 50, 50)
-CONVERT_PLAYER = (181, 230, 29)
-
-
 # save image and sound folder dir to var
 img_dir = path.join(path.dirname(__file__), "img")
 snd_dir = path.join(path.dirname(__file__), "snd")
