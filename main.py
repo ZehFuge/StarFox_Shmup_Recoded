@@ -1,12 +1,6 @@
-# library import block
+# library import block ----------------------------------------------------------------------------------------------- #
 from sys import exit
 from game import *
-
-
-# game information
-FPS = 60
-clock = GS.pygame.time.Clock()
-game_running = 1
 
 
 class Game():
@@ -14,13 +8,8 @@ class Game():
         # needed to display the right loop of the game class
         self.state = "menu"
 
-        # needed to save the mouse position for get_mouse_pos() and make it visible at the beginning
-        GS.pygame.mouse.set_visible(False)
-        self.mouse_pos = GS.pygame.mouse.get_pos()
-        self.mouse_pressed = 0
-
         # needs to display the right background
-        # 0 = menu
+        # 0 = menu | >0 = levels
         self.stage = 0
         # set layer vars for right layer setting
         # starting with layer = stage 1 for instant change
@@ -30,30 +19,24 @@ class Game():
 
     # startmenu of the game
     def menu(self):
-        # create buttons
-        play_button = GS.Buttons("play", 800, 500)
+        # create button objects
+        play_button = GS.Buttons("play", 200, 600)
 
         while 1:
-            # update mouse position
-            self.get_mouse_pos()
-
             # check input
-            self.event_handler()
+            self.input_handler()
 
             # update by behavior, get changes and draw them
             self.update_dirty_rects()
+
 
     # check which loops need to be shown
     def state_handler(self):
         if self.state == "menu":
             self.menu()
 
-    # update mouse position
-    def get_mouse_pos(self):
-        self.mouse_pos = GS.pygame.mouse.get_pos()
-
     # checks input while in any kind of menu
-    def event_handler(self):
+    def input_handler(self):
         for event in GS.pygame.event.get():
             if event.type == GS.pygame.QUIT:
                 self.end_game()
@@ -87,6 +70,9 @@ game = Game()
 class Mouse(GS.pygame.sprite.DirtySprite):
     def __init__(self):
         GS.pygame.sprite.DirtySprite.__init__(self)
+        # make mouse invisible, so only the image is shown
+        GS.pygame.mouse.set_visible(False)
+
         # safe classname for events and handling
         self.classname = "Mouse"
         # needed for redrawing
@@ -94,6 +80,7 @@ class Mouse(GS.pygame.sprite.DirtySprite):
         # set layer for draw order
         self._layer = GS.layers[self.classname]
 
+        # add sprite to the right groups
         GS.all_sprites.add(self)
         GS.all_mouses.add(self)
 
@@ -102,14 +89,12 @@ class Mouse(GS.pygame.sprite.DirtySprite):
         self.rect = self.image.get_rect()
         self.mask = GS.pygame.mask.from_surface(self.image)
 
-        # set radius for clearner collision detection with buttons
-
         # get mouse (x,y) and set it as the rect startposition
         self.pos_x, self.pos_y = GS.pygame.mouse.get_pos()
-        # -5 for better positioning of the image to the mouse
-        self.position_correction = -30
-        self.rect.x = self.pos_x - self.position_correction
-        self.rect.y = self.pos_y - self.position_correction
+        # set image rect.center x and y on mouse position
+        self.rect.centerx = self.pos_x
+        self.rect.centery = self.pos_y
+
 
     # set objects behavior
     def update(self):
@@ -125,20 +110,23 @@ class Mouse(GS.pygame.sprite.DirtySprite):
         # always draw the mouse sprite
         self.dirty = 1
 
+
     def get_position(self):
         # safe new position
         self.pos_x, self.pos_y = GS.pygame.mouse.get_pos()
 
     def sprite_repos(self):
-        # - 5 for better mouse positioning
-        self.rect.x = self.pos_x - self.position_correction
-        self.rect.y = self.pos_y - self.position_correction
+        # set image rect.center x and y on mouse position
+        self.rect.centerx = self.pos_x
+        self.rect.centery = self.pos_y
 
 
 mouse = Mouse()
 
 
-while game_running == 1:
-    clock.tick(FPS)
+# main loop
+if __name__ == "__main__":
+# while game_running == 1:
+    GS.clock.tick(GS.FPS)
     game.state_handler()
 
