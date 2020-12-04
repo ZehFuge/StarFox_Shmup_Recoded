@@ -28,7 +28,7 @@ img_dir = path.join(path.dirname(__file__), "img")
 snd_dir = path.join(path.dirname(__file__), "snd")
 
 
-# image loading block ------------------------------------------------------------------------------------------------#
+# image loading block ------------------------------------------------------------------------------------------------ #
 # load backgrounds
 backgrounds = {0: pygame.image.load(path.join(img_dir, "space_background_1200x800_nsm.png")).convert()}
 
