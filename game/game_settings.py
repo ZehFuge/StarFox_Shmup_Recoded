@@ -1,9 +1,5 @@
 # library import block ----------------------------------------------------------------------------------------------- #
 from os import path
-from random import randrange
-from random import choice
-from random import randint
-from random import random
 import pygame
 
 
