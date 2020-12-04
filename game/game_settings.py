@@ -1,4 +1,4 @@
-# library import block
+# library import block ----------------------------------------------------------------------------------------------- #
 from os import path
 from random import randrange
 from random import choice
@@ -7,17 +7,24 @@ from random import random
 import pygame
 
 
-# library init block
+# library init block ------------------------------------------------------------------------------------------------- #
 pygame.init
 pygame.mixer.pre_init(44100, -16, 50, 4096)
 pygame.mixer.init()
 pygame.font.init()
 
 
-# window information
+# predefined colors -------------------------------------------------------------------------------------------------- #
+# may delete it later if all images are transparent
+RED = (255, 0, 0)
+
+
+# window information ------------------------------------------------------------------------------------------------- #
 WIDTH = 1200
 HIGHT = 800
 screen = pygame.display.set_mode((WIDTH, HIGHT))
+FPS = 60
+clock = pygame.time.Clock()
 
 
 # save image and sound folder dir to var
@@ -25,7 +32,7 @@ img_dir = path.join(path.dirname(__file__), "img")
 snd_dir = path.join(path.dirname(__file__), "snd")
 
 
-# image loading block
+# image loading block ------------------------------------------------------------------------------------------------#
 # load backgrounds
 backgrounds = {0: pygame.image.load(path.join(img_dir, "space_background_1200x800_nsm.png")).convert()}
 
@@ -49,7 +56,7 @@ for counter in range(3):
     player_images[counter] = pygame.transform.scale(player_images[counter], (96, 96))
 
 
-# create groups
+# create groups ------------------------------------------------------------------------------------------------------ #
 all_buttons = pygame.sprite.Group()
 all_mouses = pygame.sprite.Group()
 
@@ -59,18 +66,18 @@ all_sprites = pygame.sprite.LayeredDirty()
 all_sprites.clear(screen, backgrounds[0])
 
 
-# layer predefinition block
+# layer predefinition block ------------------------------------------------------------------------------------------ #
 # create layer for an object
 #   self._layer = layers[classname]
 layers = {"Buttons": 1,
           "Mouse": 2}
 
-# sound loading block
+# sound loading block ------------------------------------------------------------------------------------------------ #
 sounds = {"Buttons": pygame.mixer.Sound(path.join(snd_dir, "menu_mouseover_sfx.ogg"))}
 
 
-# class block
-# creates a
+# class block -------------------------------------------------------------------------------------------------------- #
+# used to create buttons
 class Buttons(pygame.sprite.DirtySprite):
     def __init__(self, buttontype, x, y):
         # asign sprite to groups
@@ -142,3 +149,8 @@ class Buttons(pygame.sprite.DirtySprite):
 
         # set image changes if needed
         self.change_image(hits)
+
+
+# test environment
+if __name__ == "__main__":
+    pass
