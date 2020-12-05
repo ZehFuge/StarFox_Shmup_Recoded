@@ -10,11 +10,6 @@ pygame.mixer.init()
 pygame.font.init()
 
 
-# predefined colors -------------------------------------------------------------------------------------------------- #
-# may delete it later if all images are transparent
-RED = (255, 0, 0)
-
-
 # window information ------------------------------------------------------------------------------------------------- #
 WIDTH = 1200
 HIGHT = 800
@@ -23,7 +18,7 @@ FPS = 60
 clock = pygame.time.Clock()
 
 
-# save image and sound folder dir to var
+# saving paths ------------------------------------------------------------------------------------------------------- #
 img_dir = path.join(path.dirname(__file__), "img")
 snd_dir = path.join(path.dirname(__file__), "snd")
 
@@ -34,12 +29,15 @@ backgrounds = {0: pygame.image.load(path.join(img_dir, "space_background_1200x80
 
 # load buttons
 # 0 = idle | 1 = mouseover
-buttons = {"play0": pygame.image.load(path.join(img_dir, "startmenu_play_button_rgb_red.png")).convert_alpha(),
-           "play1": pygame.image.load(path.join(img_dir, "startmenu_play_button_mouseover_rgb_red.png")).convert_alpha()}
+buttons = {"play0" : pygame.image.load(path.join(img_dir, "button_play.png")).convert_alpha(),
+           "play1" : pygame.image.load(path.join(img_dir, "button_play_mouseover.png")).convert_alpha(),
+           "howto0": pygame.image.load(path.join(img_dir, "button_howto.png")).convert_alpha(),
+           "howto1": pygame.image.load(path.join(img_dir, "button_howto_mouseover.png")).convert_alpha(),
+           "menu0" : pygame.image.load(path.join(img_dir, "button_menu.png")).convert_alpha(),
+           "menu1" : pygame.image.load(path.join(img_dir, "button_menu_mouseover.png")).convert_alpha(),
+           "exit0" : pygame.image.load(path.join(img_dir, "button_exit.png")).convert_alpha(),
+           "exit1" : pygame.image.load(path.join(img_dir, "button_exit_mouseover.png")).convert_alpha()}
 
-# buttons set colorkey
-buttons["play0"].set_colorkey(RED)
-buttons["play1"].set_colorkey(RED)
 
 # load player sprites
 player_images = {0: pygame.image.load(path.join(img_dir, "arwing_idle.png")).convert_alpha(),
@@ -58,18 +56,29 @@ all_mouses = pygame.sprite.Group()
 
 # create the all sprites group from here, to use all classes
 all_sprites = pygame.sprite.LayeredDirty()
-# set first clear image and the surface
-all_sprites.clear(screen, backgrounds[0])
+# # set first clear image and the surface
+# all_sprites.clear(screen, backgrounds[0])
 
 
 # layer predefinition block ------------------------------------------------------------------------------------------ #
 # create layer for an object
 #   self._layer = layers[classname]
-layers = {"Buttons": 1,
-          "Mouse": 2}
+layers = {"background_fx": 1,
+          "menu_window": 2,
+          "Buttons": 3,
+          "Mouse": 4}
+
 
 # sound loading block ------------------------------------------------------------------------------------------------ #
 sounds = {"Buttons": pygame.mixer.Sound(path.join(snd_dir, "menu_mouseover_sfx.ogg"))}
+
+
+# sound volume block ------------------------------------------------------------------------------------------------- #
+sounds["Buttons"].set_volume(0.5)
+
+
+# change main.py vars ------------------------------------------------------------------------------------------------ #
+
 
 
 # class block -------------------------------------------------------------------------------------------------------- #
@@ -108,15 +117,12 @@ class Buttons(pygame.sprite.DirtySprite):
         self.rect.x = x
         self.rect.y = y
 
-
+    # ---------------------------------------------------------------------------------------------------------------- #
     def update(self):
-        # keep mask updated
-        self.mask = pygame.mask.from_surface(self.image)
-
         # check for collision
         self.check_collision()
 
-    # change self.image depending on collision
+    # change self.image depending on collision ----------------------------------------------------------------------- #
     # also used to play mouseover sound
     def change_image(self, hits):
         # if there is a collision ...
@@ -135,18 +141,21 @@ class Buttons(pygame.sprite.DirtySprite):
                 self.image = buttons[self.buttontype + str(0)]
                 self.dirty = 1
 
+    # ---------------------------------------------------------------------------------------------------------------- #
     def check_collision(self):
         # check if sprite rects collide
-        hits = pygame.sprite.groupcollide(all_mouses, all_buttons, False, False)
+        hits = pygame.sprite.spritecollideany(self, all_mouses)
 
         # if True, start a pixel perfect collision detection
         if hits:
-            hits = pygame.sprite.groupcollide(all_mouses, all_buttons, False, False, pygame.sprite.collide_mask)
+            mask_hits = pygame.sprite.spritecollideany(self, all_mouses, pygame.sprite.collide_mask)
+        else:
+            mask_hits = None
 
         # set image changes if needed
-        self.change_image(hits)
+        self.change_image(mask_hits)
 
 
-# test environment
+# test environment --------------------------------------------------------------------------------------------------- #
 if __name__ == "__main__":
     pass
