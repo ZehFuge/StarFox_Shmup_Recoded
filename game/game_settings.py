@@ -77,10 +77,6 @@ sounds = {"Buttons": pygame.mixer.Sound(path.join(snd_dir, "menu_mouseover_sfx.o
 sounds["Buttons"].set_volume(0.5)
 
 
-# change main.py vars ------------------------------------------------------------------------------------------------ #
-
-
-
 # class block -------------------------------------------------------------------------------------------------------- #
 # used to create buttons
 class Buttons(pygame.sprite.DirtySprite):
