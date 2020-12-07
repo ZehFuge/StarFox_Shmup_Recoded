@@ -9,11 +9,13 @@ pygame.mixer.pre_init(44100, -16, 50, 4096)
 pygame.mixer.init()
 pygame.font.init()
 
+# predefined colors - delete later if transparencys are made
+RED = (255, 0, 0)
 
 # window information ------------------------------------------------------------------------------------------------- #
 WIDTH = 1200
 HIGHT = 800
-screen = pygame.display.set_mode((WIDTH, HIGHT))
+screen = pygame.display.set_mode((WIDTH, HIGHT), pygame.FULLSCREEN)
 FPS = 60
 clock = pygame.time.Clock()
 
@@ -25,7 +27,8 @@ snd_dir = path.join(path.dirname(__file__), "snd")
 
 # image loading block ------------------------------------------------------------------------------------------------ #
 # load backgrounds
-backgrounds = {0: pygame.image.load(path.join(img_dir, "space_background_1200x800_nsm.png")).convert()}
+backgrounds = { 0: pygame.image.load(path.join(img_dir, "background_menu_1200x800.png")).convert(),
+                1: pygame.image.load(path.join(img_dir, "background_space_1200x800.png")).convert()}
 
 # load buttons
 # 0 = idle | 1 = mouseover
@@ -35,8 +38,21 @@ buttons = {"play0" : pygame.image.load(path.join(img_dir, "button_play.png")).co
            "howto1": pygame.image.load(path.join(img_dir, "button_howto_mouseover.png")).convert_alpha(),
            "menu0" : pygame.image.load(path.join(img_dir, "button_menu.png")).convert_alpha(),
            "menu1" : pygame.image.load(path.join(img_dir, "button_menu_mouseover.png")).convert_alpha(),
+           "next0" : pygame.image.load(path.join(img_dir, "button_next.png")).convert_alpha(),
+           "next1" : pygame.image.load(path.join(img_dir, "button_next_mouseover.png")).convert_alpha(),
            "exit0" : pygame.image.load(path.join(img_dir, "button_exit.png")).convert_alpha(),
            "exit1" : pygame.image.load(path.join(img_dir, "button_exit_mouseover.png")).convert_alpha()}
+
+
+# load information/menu images
+info_imgs = {"howto0" : pygame.image.load(path.join(img_dir, "info_movement.png")).convert(),
+            "howto1" : pygame.image.load(path.join(img_dir, "info_powerups.png")).convert()}
+
+# set colorkey | remove after images are made transparent
+info_imgs["howto0"].set_colorkey(RED)
+info_imgs["howto1"].set_colorkey(RED)
+buttons["next0"].set_colorkey(RED)
+buttons["next1"].set_colorkey(RED)
 
 
 # load player sprites
@@ -53,18 +69,17 @@ for counter in range(3):
 # create groups ------------------------------------------------------------------------------------------------------ #
 all_buttons = pygame.sprite.Group()
 all_mouses = pygame.sprite.Group()
+all_infos = pygame.sprite.Group()
 
 # create the all sprites group from here, to use all classes
 all_sprites = pygame.sprite.LayeredDirty()
-# # set first clear image and the surface
-# all_sprites.clear(screen, backgrounds[0])
 
 
 # layer predefinition block ------------------------------------------------------------------------------------------ #
 # create layer for an object
 #   self._layer = layers[classname]
 layers = {"background_fx": 1,
-          "menu_window": 2,
+          "Info_Images": 2,
           "Buttons": 3,
           "Mouse": 4}
 
@@ -151,6 +166,50 @@ class Buttons(pygame.sprite.DirtySprite):
         # set image changes if needed
         self.change_image(mask_hits)
 
+
+# used to show info images like controls and handle them ------------------------------------------------------------- #
+class Info_Images(pygame.sprite.DirtySprite):
+    def __init__(self, gamestate, toggle, x, y):
+        pygame.sprite.DirtySprite.__init__(self)
+
+        # safe classname for events and handling
+        self.classname = "Info_Images"
+
+        # needed for redrawing
+        self.dirty = 1
+
+        # set layer for draw order
+        self._layer = layers[self.classname]
+
+        # add to group after setting layer
+        all_sprites.add(self)
+        all_infos.add(self)
+
+        # save given toggle options
+        self.toggle = toggle
+        self.old_toggle = toggle
+
+        # load image and get its rect and mask
+        self.gamestate = gamestate
+        self.image = info_imgs[self.gamestate + str(self.toggle)]
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
+
+    # set sprite behavior -------------------------------------------------------------------------------------------- #
+    def update(self):
+        # check which page should be shown (if user presses "next" button)
+        self.check_toggle()
+
+        # always draw
+        self.dirty = 1
+
+    # handling toggling by "next" button ----------------------------------------------------------------------------- #
+    def check_toggle(self):
+        if self.toggle != self.old_toggle:
+            self.image = info_imgs[self.gamestate + str(self.toggle)]
+            self.old_toggle = self.toggle
 
 # test environment --------------------------------------------------------------------------------------------------- #
 if __name__ == "__main__":
