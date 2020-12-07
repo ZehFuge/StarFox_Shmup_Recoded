@@ -19,6 +19,12 @@ class Game():
         # create group for generated buttons objects
         self.shown_buttons = {}
 
+        # used to toggle shown menu screens
+        # toggle needs always to be resetted to 0, except if another page should be shown
+        self.toggle = 0
+        self.old_toggle = self.toggle
+
+        # left click is saved here and not in the mouse class because of latency in input
         self.left_click = 0
 
 
@@ -34,7 +40,7 @@ class Game():
 
         # save buttons in a list for easier kill and create
         # buttons get killed in mouse method mouse.check_collision
-        self.shown_buttons = {play_button, howto_button, exit_button}
+        shown_buttons = {play_button, howto_button, exit_button}
 
         # handle menu until state gets changed by mouse.check_buttonpress while button collision
         while self.state == "menu":
@@ -43,6 +49,10 @@ class Game():
 
             # update by behavior, get changes and draw them
             self.update_dirty_rects()
+
+        # if loop ends, kill created objects
+        for button in shown_buttons:
+            button.kill()
 
 
     # loop of the actual game ---------------------------------------------------------------------------------------- #
@@ -63,34 +73,53 @@ class Game():
         # set clear image and the surface
         self.change_background_clear()
 
+        # set toggle to 0 before loop to avoid errors in runtime
+        self.toggle = 0
+
         # create button objects in screen order
-        menu_button = GS.Buttons("menu", 450, 600)
+        menu_button = GS.Buttons("menu", 300, 670)
+        next_button = GS.Buttons("next", 650, 670)
 
         # save buttons in a list for easier kill and create
         # buttons get killed in mouse method mouse.check_collision
-        self.shown_buttons = {menu_button}
+        shown_buttons = {menu_button, next_button}
+
+        # create info menu object
+        info_object = GS.Info_Images(self.state, self.toggle, 255, 50)
 
         while self.state == "howto":
+            # check if info_objects toggle needs to be changed
+            if self.old_toggle != self.toggle:
+                info_object.toggle = self.toggle
+                self.old_toggle = self.toggle
+
             # check input
             self.input_handler()
 
             # update all_sprites by behavior, get changes and draw them
             self.update_dirty_rects()
 
+        # if loop ends, kill created objects
+        for button in shown_buttons:
+            button.kill()
+        info_object.kill()
 
     # check which loops need to be shown ----------------------------------------------------------------------------- #
     def state_handler(self):
         # main menu
         if self.state == "menu":
+            self.stage = 0
             self.menu()
 
         # actual game loop
         if self.state == "play":
+            self.stage = 1
             self.play()
 
         # show instructions
         if self.state == "howto":
             self.howto()
+
 
         # end game if exit was clicked
         if self.state == "exit":
@@ -99,13 +128,14 @@ class Game():
     # checks input while in any kind of menu ------------------------------------------------------------------------- #
     def input_handler(self):
         for event in GS.pygame.event.get():
-            # quit input --------------------------------------------------------------------------------------------- #
+            # quit game input ---------------------------------------------------------------------------------------- #
             if event.type == GS.pygame.QUIT:
                 self.end_game()
 
 
             # keyboard inputs ---------------------------------------------------------------------------------------- #
             if event.type == GS.pygame.KEYDOWN:
+                # no keydown events at the moment
                 pass
 
 
@@ -133,7 +163,11 @@ class Game():
 
     # change the background depend on self.stage re-rendering -------------------------------------------------------- #
     def change_background_clear(self):
+        # set new clear picture
         GS.all_sprites.clear(GS.screen, GS.backgrounds[self.stage])
+
+        # draw new background screen to erase old one
+        GS.screen.blit(GS.backgrounds[self.stage], (0, 0))
 
 
 # create game object before mouse object
@@ -218,14 +252,23 @@ class Mouse(GS.pygame.sprite.DirtySprite):
 
             # check if left click is done by user
             if mask_hits and game.left_click == 1:
-                # reset left click to be only taken once
-                game.left_click = 0
-                # change game.state depending on the button
-                game.state = mask_hits.buttontype
+                # check button isn't a "next" button, change game.state
+                if mask_hits.buttontype != "next":
+                    # reset left click to be only taken once
+                    game.left_click = 0
 
-                # kill existing button for a dictonary clean for new buttons
-                for button in game.shown_buttons:
-                    button.kill()
+                if mask_hits.buttontype != "next":
+                    # change game.state depending on the button
+                    game.state = mask_hits.buttontype
+                # otherwise just rais the game.toggle (if buttontype == "next")
+                else:
+                    # reset left click to be only taken once
+                    game.left_click = 0
+                    # show next or previous info page
+                    if game.toggle == 0:
+                        game.toggle = 1
+                    else:
+                        game.toggle = 0
         else:
             mask_hits = None
 
