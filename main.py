@@ -60,6 +60,9 @@ class Game():
         # set clear image and the surface
         self.change_background_clear()
 
+        # create player object
+        player = GS.Player(GS.WIDTH / 2, 700)
+
         while self.state == "play":
             # check input
             self.input_handler()
@@ -218,6 +221,7 @@ class Mouse(GS.pygame.sprite.DirtySprite):
 
     # set objects behavior ------------------------------------------------------------------------------------------- #
     def update(self):
+        self.handle_visibility()
         # get position of the mouse cursor
         self.get_position()
 
@@ -260,6 +264,8 @@ class Mouse(GS.pygame.sprite.DirtySprite):
                 if mask_hits.buttontype != "next":
                     # change game.state depending on the button
                     game.state = mask_hits.buttontype
+                    # reset left click to be only taken once
+                    game.left_click = 0
                 # otherwise just rais the game.toggle (if buttontype == "next")
                 else:
                     # reset left click to be only taken once
@@ -272,6 +278,23 @@ class Mouse(GS.pygame.sprite.DirtySprite):
         else:
             mask_hits = None
 
+    # set mouse visibility depending on game.state ------------------------------------------------------------------- #
+    def handle_visibility(self):
+        # check if games started and mouse images needs to be removed
+        if game.state == "play":
+            # check if there is a mouse object in the GS.all_sprites group
+            # lets methode run only once
+            if self in GS.all_sprites:
+                # if all conditions are true, remove mouse object (self) from draw group (GS.all_sprites)
+                GS.all_sprites.remove(self)
+
+        # check if play is in any kind of menu
+        if game.state != "play":
+            # check if mouse object already is in a group
+            # lets methode run only once
+            if not self in GS.all_sprites:
+                # if all conditions are true, add mouse object (self) from draw group (GS.all_sprites)
+                GS.all_sprites.add(self)
 
 # create mouse object before the main loop
 mouse = Mouse()
