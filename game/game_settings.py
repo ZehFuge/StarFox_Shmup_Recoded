@@ -18,6 +18,8 @@ HIGHT = 800
 screen = pygame.display.set_mode((WIDTH, HIGHT))
 FPS = 60
 clock = pygame.time.Clock()
+# save game draw time for FPS independet drawing
+game_dt = clock.tick(FPS) / 1000
 
 
 # saving paths ------------------------------------------------------------------------------------------------------- #
@@ -249,7 +251,9 @@ class Player(pygame.sprite.DirtySprite):
         self.rect.y = y
 
         # declare movement speed of object
-        self.velocity = 2
+        self.velocity_x = 0
+        self.velocity_y = 0
+        self.velocity = 150
 
 
     def update(self):
@@ -259,25 +263,28 @@ class Player(pygame.sprite.DirtySprite):
 
     # get keyboard input and change position ------------------------------------------------------------------------- #
     def movement_handler(self):
+        # reset movespeed
+        # self.velocity_x = 0
+        # self.velocity_y = 0
+
         keystate = pygame.key.get_pressed()
 
         # check if player moved (W, A, S, D)
         if keystate[pygame.K_w]:
-            self.rect.y -= self.velocity
-            self.fly_direction = 0
-            self.dirty = 1
+            self.velocity_y = -self.velocity
         if keystate[pygame.K_a]:
-            self.rect.x -= self.velocity
+            self.velocity_x = -self.velocity
             self.fly_direction = 1
-            self.dirty = 1
         if keystate[pygame.K_s]:
-            self.rect.y += self.velocity
-            self.fly_direction = 0
-            self.dirty = 1
+            self.velocity_y = self.velocity
         if keystate[pygame.K_d]:
-            self.rect.x += self.velocity
+            self.velocity_x = self.velocity
             self.fly_direction = 2
-            self.dirty = 1
+
+        if not keystate[pygame.K_w] and not keystate[pygame.K_s]:
+            self.velocity_y = 0
+        if not keystate[pygame.K_a] and not keystate[pygame.K_d]:
+            self.velocity_x = 0
 
         # reset fly direction if player isn't moving left (1) or right (2) back to idle (0)
         if not keystate[pygame.K_a] and not keystate[pygame.K_d]:
@@ -287,8 +294,33 @@ class Player(pygame.sprite.DirtySprite):
         # change image depending on self.fly_direction
         self.set_move_image()
 
+        # handle diagonal movement
+        if self.velocity_x != 0 and self.velocity_y != 0:
+            self.velocity_x *=  0.9
+            self.velocity_y *= 0.9
+
+
+        """ # move sprite -------------------------------------------------------------------------------------------- #
+        #
+        #                                                Usage notes:
+        #
+        # The movement speed needs to be converted to an integer. If not, the movement speed to
+        # the left will be faster then moving to the right. Afte a conversion, the speed will remain the same
+        # for all directions.
+        # ------------------------------------------------------------------------------------------------------------ #
+        """
+        # Test for sprite movement ----------------------------------------------------------------------------------- #
+        # print("vel x: {},"
+        #       "vel y: {}".format(self.velocity_x, self.velocity_y))
+
+        self.rect.centerx += int(self.velocity_x * game_dt)
+        self.rect.centery += int(self.velocity_y * game_dt)
+
         # check if player wants to leave the screen
         self.check_moverange()
+
+        # update image
+        self.dirty = 1
 
     # stops player to leave screen ----------------------------------------------------------------------------------- #
     def check_moverange(self):
